@@ -73,8 +73,8 @@ name: 'Testing X160' **(Required**, given name by you)
 device_name: 'Testing X160' **(Required**, given name by you)  
 host_name: main **(Required**, the field should be same as one host name in your configuration)  
 auto: true **(Required**, if true, a thread will be created to fetch the switch button status each 20 secs)  
->> names:  
->>>  0: "演示"  
+names:  **(Required)**  
+>>  0: "演示"  
   1: "客厅"  
   2: "厨房"  
   3: "123"  
