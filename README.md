@@ -1,5 +1,6 @@
 # 右家智能家居组件 For Home Assistant
 
+Author: Vincent Qiu nov30th[AT)gmail.com
 
 ## Features
 
