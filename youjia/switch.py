@@ -6,6 +6,8 @@ Supports for 莱特 LaiTe Switch (laitecn) in Home assistant
 """
 
 import logging
+import threading
+import time
 
 import voluptuous as vol
 
@@ -21,6 +23,7 @@ _LOGGER = logging.getLogger(__name__)
 
 DOMAIN = "youjia"
 DEFAULT_NAME = 'YouJia Switch'
+SWITCH_STATUS_CHECKING_THREAD = {}  # type: Dict[threading.Thread]
 
 
 def check_names(value):
@@ -37,6 +40,12 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
     vol.Required('names'): check_names,
 })
+
+
+def auto_checking_switch_state(youjia_host: YouJiaClient.YouJiaClient, laite_device_id: str):
+    while True:
+        time.sleep(10)
+        youjia_host.send_str_command("{}8686860F".format(laite_device_id.lower()))
 
 
 async def async_setup_platform(hass: HomeAssistantType,
@@ -67,6 +76,9 @@ async def async_setup_platform(hass: HomeAssistantType,
                                        index,
                                        config['host_name']
                                        )], True)
+    thread = threading.Thread(target=auto_checking_switch_state, args=(get_host(config['host_name']), config['entity_id']))
+    SWITCH_STATUS_CHECKING_THREAD[config['name']] = thread
+    thread.start()
 
 
 class YoujiaX160(SwitchDevice):
@@ -95,12 +107,12 @@ class YoujiaX160(SwitchDevice):
         if len(message) == len('1aca1008b4000001010101010100000000000000000f'):
             if message[:10] == self._dest_device_id:
                 slot_status = message[10 + self._switch_entity_solt * 2: 12 + self._switch_entity_solt * 2]
-                if slot_status == '00' and self._is_on is True:
+                if slot_status == '00':  # and self._is_on is True:
                     self._is_on = False
                     self.async_write_ha_state()
                     _LOGGER.debug("Sync status done...")
 
-                if slot_status == '01' and self._is_on is False:
+                if slot_status == '01':  # and self._is_on is False:
                     self._is_on = True
                     self.async_write_ha_state()
                     _LOGGER.debug("Sync status done...")
