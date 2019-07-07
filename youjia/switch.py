@@ -76,9 +76,11 @@ async def async_setup_platform(hass: HomeAssistantType,
                                        index,
                                        config['host_name']
                                        )], True)
-    thread = threading.Thread(target=auto_checking_switch_state, args=(get_host(config['host_name']), config['entity_id']))
-    SWITCH_STATUS_CHECKING_THREAD[config['name']] = thread
-    thread.start()
+    if config['auto'] is True:
+        thread = threading.Thread(target=auto_checking_switch_state,
+                                  args=(get_host(config['host_name']), config['entity_id']))
+        SWITCH_STATUS_CHECKING_THREAD[config['name']] = thread
+        thread.start()
 
 
 class YoujiaX160(SwitchDevice):
@@ -103,6 +105,8 @@ class YoujiaX160(SwitchDevice):
         self._host_class.add_str_receiver(self.on_str_command_received)
 
     def on_str_command_received(self, message):
+        if self._switch_entity_solt > 99:
+            return
         _LOGGER.debug("on_str_command_received %s", message)
         if len(message) == len('1aca1008b4000001010101010100000000000000000f'):
             if message[:10] == self._dest_device_id:
@@ -148,10 +152,30 @@ class YoujiaX160(SwitchDevice):
     def send_command_on(self, device_id: str, solt: int):
         # request_message = "{}00{:0>2}{}0F".format(device_id, solt, '01')
         request_message = "{0}00{1:0>2}{2}0F".format(device_id, solt, '01')
+        if solt > 99:
+            self._is_on = True
+            self.async_write_ha_state()
+            if solt == 100:
+                request_message = "{0}017788FF".format(device_id)
+            elif solt == 101:
+                request_message = "{0}107788FF".format(device_id)
+            elif solt == 102:
+                request_message = "{0}307788FF".format(device_id)
+
         _LOGGER.debug("command on switch command: %s", request_message)
         self._host_class.send_str_command(request_message)
 
     def send_command_off(self, device_id: str, solt: int):
         request_message = "{0}00{1:0>2}{2}0F".format(device_id, solt, '00')
+        if solt > 99:
+            self._is_on = False
+            self.async_write_ha_state()
+            if solt == 100:
+                request_message = "{0}027788FF".format(device_id)
+            elif solt == 101:
+                request_message = "{0}207788FF".format(device_id)
+            elif solt == 102:
+                request_message = "{0}407788FF".format(device_id)
+
         _LOGGER.debug("command off switch command: %s", request_message)
         self._host_class.send_str_command(request_message)
