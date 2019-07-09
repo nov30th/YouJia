@@ -11,10 +11,12 @@ import queue
 import socket
 import threading
 import time
-from typing import List
+from typing import List, Dict
 
 _LOGGER = logging.getLogger(__name__)
 RETRY_SECS = 3
+
+YOUJIA_HOSTS = {}  # type: Dict[str,YouJiaClient]
 
 DEFAULT_SOCKET_OPTION = [(socket.SOL_TCP, socket.TCP_NODELAY, 1), ]
 if hasattr(socket, "SO_KEEPALIVE"):
@@ -153,3 +155,7 @@ class YouJiaClient:
     #         self._sock.sendall(message)
     #     else:
     #         _LOGGER.error("Can not send commands as host %s is not connected", self._host_name)
+
+
+def get_host(host_name: str) -> YouJiaClient:
+    return YOUJIA_HOSTS[host_name]

@@ -10,8 +10,7 @@ Notice:
 """
 
 import logging
-
-from .hosts import *
+from .YouJiaClient import *
 
 DOMAIN = "youjia"
 _LOGGER = logging.getLogger(__name__)
@@ -29,7 +28,7 @@ def setup(hass, config):
                 _LOGGER.error("Host platform must be the first of all platforms in section!")
                 break
             is_first_platform = False
-            youjia_host = hosts.YouJiaClient.YouJiaClient(value['name'],
+            youjia_host = YouJiaClient(value['name'],
                                                           value['host'],
                                                           value['port'],
                                                           str(value['device_id']).lower(),

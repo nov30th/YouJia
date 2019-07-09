@@ -17,11 +17,10 @@ from homeassistant.components.switch import SwitchDevice
 from homeassistant.const import (
     CONF_ENTITY_ID, CONF_NAME)
 from homeassistant.helpers.typing import ConfigType, HomeAssistantType
-from .hosts import *
+from .YouJiaClient import *
 
 _LOGGER = logging.getLogger(__name__)
 
-DOMAIN = "youjia"
 DEFAULT_NAME = 'YouJia Switch'
 SWITCH_STATUS_CHECKING_THREAD = {}  # type: Dict[threading.Thread]
 
@@ -42,7 +41,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
 })
 
 
-def auto_checking_switch_state(youjia_host: YouJiaClient.YouJiaClient, laite_device_id: str):
+def auto_checking_switch_state(youjia_host: YouJiaClient, laite_device_id: str):
     while True:
         time.sleep(10)
         youjia_host.send_str_command("{}8686860F".format(laite_device_id.lower()))
