@@ -38,6 +38,8 @@ def setup(hass, config):
             YOUJIA_HOSTS[value['name']] = youjia_host
         if value['platform'] == 'switch':
             hass.helpers.discovery.load_platform('switch', DOMAIN, value, config)
+        if value['platform'] == 'light':
+            hass.helpers.discovery.load_platform('light', DOMAIN, value, config)
 
     # load_platform(hass,  'switch', DOMAIN,None, config)
     # hass.async_create_task(

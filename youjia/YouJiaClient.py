@@ -128,7 +128,7 @@ class YouJiaClient:
     def handle_receivers(self, data):
         if len(self._message_str_receiver) > 0:
             str_message = ''.join('{:02x}'.format(x) for x in data)  # str(binascii.hexlify(bytearray(data)))
-            _LOGGER.debug("Handle string message %s", str_message)
+            _LOGGER.warn("Handle string message %s", str_message)
             for receiver in self._message_str_receiver:
                 try:
                     receiver(str_message)
