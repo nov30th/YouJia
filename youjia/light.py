@@ -5,9 +5,15 @@ Description:
 Supports for 莱特 LaiTe Switch (laitecn) in Home assistant
 """
 
-from homeassistant.components.light import Light, SUPPORT_BRIGHTNESS
+from homeassistant.components.light import Light, SUPPORT_BRIGHTNESS, ATTR_BRIGHTNESS
 from homeassistant.helpers.typing import ConfigType, HomeAssistantType
 from .YouJiaClient import *
+
+MAX_HA_BRIGHT = 255
+
+BRIGHT_END = 0xF0
+
+BRIGHT_START = 0x25
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -26,7 +32,7 @@ def check_names(value):
 def auto_checking_switch_state(youjia_host: YouJiaClient, laite_device_id: str):
     while True:
         time.sleep(10)
-        youjia_host.send_str_command("{}868686".format(laite_device_id.lower()))
+        youjia_host.send_str_command("{}8686860f".format(laite_device_id.lower()))
 
 
 async def async_setup_platform(hass: HomeAssistantType,
@@ -90,7 +96,7 @@ class YoujiaX160(Light):
         self._async_unsub_state_changed = None
         self._host_class = get_host(host_name)
         self._host_class.add_str_receiver(self.on_str_command_received)
-        self._brightness = 255
+        self._brightness = 0
         self._total_solt = total_solt
 
     def on_str_command_received(self, message):
@@ -107,7 +113,7 @@ class YoujiaX160(Light):
                 _LOGGER.warn("status message:{}".format(status_message))
                 if status_message[:2] == '00':
                     # reply message or toggle message
-                    self._brightness = int('0x' + status_message[2:4], 16)
+                    self._brightness = int('0x' + status_message[2:4], 16) / 100.0 * MAX_HA_BRIGHT
                     self._is_on = True if status_message[4:6] == '01' else False
                     self.async_write_ha_state()
 
@@ -116,7 +122,12 @@ class YoujiaX160(Light):
         _LOGGER.debug("sent brightness light {}.{} command off.".format(self._dest_device_id, self._switch_entity_solt))
 
     def turn_on(self, **kwargs) -> None:
-        self.send_command_on(self._dest_device_id, self._switch_entity_solt, self._brightness)
+        brightness = kwargs.get(ATTR_BRIGHTNESS, MAX_HA_BRIGHT)
+        brightness_range = BRIGHT_START - BRIGHT_END
+        machine_brightness = int(brightness_range * (brightness * 1.0 / MAX_HA_BRIGHT) + BRIGHT_END)
+        if self._brightness == 0:
+            self._brightness = BRIGHT_END
+        self.send_command_on(self._dest_device_id, self._switch_entity_solt, machine_brightness)
         _LOGGER.debug("sent brightness light {}.{} command on.".format(self._dest_device_id, self._switch_entity_solt))
 
     @property
@@ -148,7 +159,7 @@ class YoujiaX160(Light):
         while start_pos < solt:
             request_message += empty_str
             start_pos += 1
-        request_message += "ff{:02x}01".format(self._brightness)
+        request_message += "ff{:02x}01".format(brightness)
         while start_pos < self._total_solt - 1:
             request_message += empty_str
             start_pos += 1
@@ -169,6 +180,7 @@ class YoujiaX160(Light):
             start_pos += 1
         request_message += '0f'
         _LOGGER.warn("command on brightness light command: %s", request_message)
+        self._host_class.send_str_command(request_message)
 
     @property
     def brightness(self):

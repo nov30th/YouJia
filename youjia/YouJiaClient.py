@@ -146,6 +146,7 @@ class YouJiaClient:
     def send_str_command(self, message: str) -> None:
         if self._sock is not None and self._is_connected:
             message = self._device_id + 'CDB8B4AB' + message
+            _LOGGER.warn("sending bytes to host {}".format(message))
             self.sending_queue.put(bytes.fromhex(message))
         else:
             _LOGGER.error("Can not send commands as host %s is not connected", self._host_name)
