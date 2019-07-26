@@ -4,8 +4,8 @@ Author: Vincent Qiu nov30th[AT)gmail.com
 
 ## Features
 
-Manages connections to Laite(莱特) Device automatically, the interfaces for each components are packed friendlly.  
-Easily by using **Send** and **Recv events** with this components to Laite devices.
+Manages connections to Laite(莱特) Device automatically, the interfaces for each component are packed friendly.  
+Easily by using **Send** and **Recv events** with this component to Laite devices.
 
 ## Full Configuration
 
@@ -47,9 +47,9 @@ Easily by using **Send** and **Recv events** with this components to Laite devic
 
 **host** should be the first in platforms, put all the host sections before any other platforms under **youjia**.
 
-Other platforms under **youjia** must have the **host_name** value which point to the one host above.
+Other platforms under **youjia** must have the **host_name** value which points to the one host above.
 
-E.g. If you have two Laite neteork host and switch A is connected to Laite network host B, the switch A must be put host_name as Laite network host B's name. The value in this example is **"main"**.
+E.g. If you have two Laite network host and switch A is connected to Laite network host B, the switch A must be put host_name as Laite network host B's name. The value in this example is **"main"**.
 
 ### Value required
 
@@ -65,7 +65,7 @@ contorl_delay: 0.3 **(Required**, interval between all commands to this host, un
 ## X160 Swtich Configuration
 
 X160 has 18 roads control, also including 1-9 roads all on/off and 10-18 roads all on/off control.
-Configuration can be multiple secions with one switch, please notice that if you have two same X160 device, set the auto as true on one device only.
+Configuration can be multiple sections with one switch, please notice that if you have two same X160 devices, set the auto as true on one device only.
 
 
 \- platform: switch **(Required)**  
