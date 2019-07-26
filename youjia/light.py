@@ -61,7 +61,7 @@ async def async_setup_platform(hass: HomeAssistantType,
                                        entry_id,
                                        config['entity_id'],
                                        index,
-                                       config['total_solt'],
+                                       config['total_solts'],
                                        config['host_name']
                                        )], True)
     if config['auto'] is True:
@@ -84,7 +84,7 @@ class YoujiaX160(Light):
                  switch_entity_id: str,
                  laite_device_id: str,
                  solt: int,
-                 total_solt: int,
+                 total_solts: int,
                  host_name: str,
                  ) -> None:
         _LOGGER.debug("Adding brightness light {} of {}".format(name, switch_entity_id))
@@ -98,12 +98,12 @@ class YoujiaX160(Light):
         self._host_class = get_host(host_name)
         self._host_class.add_str_receiver(self.on_str_command_received)
         self._brightness = 0
-        self._total_solt = total_solt
+        self._total_solts = total_solts
 
     def on_str_command_received(self, message):
         if self._switch_entity_solt > 99:
             return
-        char_0f_pos = 2 * 5 + self._total_solt * 6
+        char_0f_pos = 2 * 5 + self._total_solts * 6
         if len(message) < char_0f_pos + 2:
             return
         if (len(message) > 2 * 5) and message[char_0f_pos:char_0f_pos + 2] == '0f':
@@ -164,7 +164,7 @@ class YoujiaX160(Light):
             request_message += empty_str
             start_pos += 1
         request_message += "ff{:02x}01".format(brightness)
-        while start_pos < self._total_solt - 1:
+        while start_pos < self._total_solts - 1:
             request_message += empty_str
             start_pos += 1
         request_message += '0f'
@@ -179,7 +179,7 @@ class YoujiaX160(Light):
             request_message += empty_str
             start_pos += 1
         request_message += "000001"
-        while start_pos < self._total_solt - 1:
+        while start_pos < self._total_solts - 1:
             request_message += empty_str
             start_pos += 1
         request_message += '0f'
