@@ -31,7 +31,7 @@ def check_names(value):
 
 def auto_checking_switch_state(youjia_host: YouJiaClient, laite_device_id: str):
     while True:
-        time.sleep(10)
+        time.sleep(3)
         youjia_host.send_str_command("{}8686860f".format(laite_device_id.lower()))
 
 
@@ -67,6 +67,7 @@ async def async_setup_platform(hass: HomeAssistantType,
     if config['auto'] is True:
         thread = threading.Thread(target=auto_checking_switch_state,
                                   args=(get_host(config['host_name']), config['entity_id']))
+        thread.daemon = True
         SWITCH_STATUS_CHECKING_THREAD[config['name']] = thread
         thread.start()
 
@@ -102,7 +103,10 @@ class YoujiaX160(Light):
     def on_str_command_received(self, message):
         if self._switch_entity_solt > 99:
             return
-        if (len(message) > 2 * 5) and message[-2:] == '0f':
+        char_0f_pos = 2 * 5 + self._total_solt * 6
+        if len(message) < char_0f_pos + 2:
+            return
+        if (len(message) > 2 * 5) and message[char_0f_pos:char_0f_pos + 2] == '0f':
             # Current Device Status Message
             if message[:10] != self._dest_device_id:
                 return

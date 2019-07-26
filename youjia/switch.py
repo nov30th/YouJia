@@ -78,6 +78,7 @@ async def async_setup_platform(hass: HomeAssistantType,
     if config['auto'] is True:
         thread = threading.Thread(target=auto_checking_switch_state,
                                   args=(get_host(config['host_name']), config['entity_id']))
+        thread.daemon = True
         SWITCH_STATUS_CHECKING_THREAD[config['name']] = thread
         thread.start()
 

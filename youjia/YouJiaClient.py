@@ -50,15 +50,17 @@ class YouJiaClient:
         self._message_str_receiver = []  # type: List
         self._is_connected = False
         self._control_delay = control_delay  # type: float
+        self.sending_queue = queue.Queue()  # type: queue.Queue
 
         self._connection_thread = threading.Thread(target=self.connect_loop)
+        self._connection_thread.daemon = True
         self._sending_str_thread = threading.Thread(target=self.sending_loop)
+        self._sending_str_thread.daemon = True
         # self._keep_alive_thread = threading.Thread(target=self.keep_alive_and_error_detect)
 
         self._connection_thread.start()
         self._sending_str_thread.start()
         # self._keep_alive_thread.start()
-        self.sending_queue = queue.Queue()  # type: queue.Queue
 
     def is_connected(self):
         return self._is_connected
