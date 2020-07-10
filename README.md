@@ -1,4 +1,4 @@
-# 右家智能家居组件 For Home Assistant
+# 右家智能家居组件(莱特 LaiteCN组件控制) For Home Assistant
 
 Author: Vincent Qiu nov30th[AT)gmail.com
 
